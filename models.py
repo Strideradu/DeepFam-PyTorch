@@ -6,32 +6,30 @@ from torch.autograd import Variable
 
 class PepCNN(nn.Module):
 
-    def __init__(self, args):
+    def __init__(self, num_class=1000, num_token=21, seq_len=1000, kernel_nums=[256, 256, 256, 256, 256, 256, 256, 256],
+                 kernel_sizes=[8, 12, 16, 20, 24, 28, 32, 36], dropout=0.3):
         super(PepCNN, self).__init__()
-        self.args = args
 
-        V = args.embed_num
-        D = args.embed_dim
-        C = args.class_num
-        Ci = 1
-        Co = args.kernel_num
-        Ks = args.kernel_sizes
+        self.num_token = num_token
+        self.seq_len = seq_len
+        self.num_class = num_class
+        self.channle_in = 1
+        self.kernel_nums = kernel_nums
+        self.kernel_sizes = kernel_sizes
+        self.dropout_rate = dropout
 
-        self.embed = nn.Embedding(V, D)
-        # self.convs1 = [nn.Conv2d(Ci, Co, (K, D)) for K in Ks]
-        self.convs1 = nn.ModuleList([nn.Conv2d(Ci, Co, (K, D)) for K in Ks])
+        self.embed = nn.Embedding(self.num_token, self.seq_len)
+        # self.convs1 = [nn.Conv2d(Ci, self.kernel_num, (kernel_size, D)) for kernel_size in self.kernel_size]
+        self.convs1 = nn.ModuleList(
+            [nn.Conv2d(self.channle_in, self.kernel_nums[i], (kernel_size, self.seq_len)) for i, kernel_size in
+             enumerate(self.kernel_sizes)])
         '''
-        self.conv13 = nn.Conv2d(Ci, Co, (3, D))
-        self.conv14 = nn.Conv2d(Ci, Co, (4, D))
-        self.conv15 = nn.Conv2d(Ci, Co, (5, D))
+        self.conv13 = nn.Conv2d(Ci, self.kernel_num, (3, D))
+        self.conv14 = nn.Conv2d(Ci, self.kernel_num, (4, D))
+        self.conv15 = nn.Conv2d(Ci, self.kernel_num, (5, D))
         '''
-        self.dropout = nn.Dropout(args.dropout)
-        self.fc1 = nn.Linear(len(Ks) * Co, C)
-
-    def conv_and_pool(self, x, conv):
-        x = F.relu(conv(x)).squeeze(3)  # (N, Co, W)
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
-        return x
+        self.dropout = nn.Dropout(self.dropout_rate)
+        self.fc1 = nn.Linear(len(self.kernel_sizes) * self.kernel_nums, self.num_class)
 
     def forward(self, x):
         x = self.embed(x)  # (N, W, D)
