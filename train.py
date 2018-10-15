@@ -65,18 +65,7 @@ def eval(data_loader, model):
     return accuracy, losses, corrects, size
 
 
-def save_checkpoint(checkpoint_path, model, optimizer):
-    state = {'state_dict': model.state_dict(),
-             'optimizer': optimizer.state_dict()}
-    torch.save(state, checkpoint_path)
-    print('model saved to %s' % checkpoint_path)
 
-
-def load_checkpoint(checkpoint_path, model, optimizer):
-    state = torch.load(checkpoint_path)
-    model.load_state_dict(state['state_dict'])
-    optimizer.load_state_dict(state['optimizer'])
-    print('model loaded from %s' % checkpoint_path)
 
 
 if __name__ == '__main__':
@@ -85,7 +74,7 @@ if __name__ == '__main__':
     # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/DNA_translate/PBsim_GIPR_min2000_mean6000_6frame_protein_test.txt")
 
     train_loader = data.DataLoader(train_data, batch_size=32, shuffle=True)
-    test_loader = data.DataLoader(test_data, batch_size=32, shuffle=True)
+    test_loader = data.DataLoader(test_data, batch_size=32)
 
     args = argparser()
     model = PepCNN(num_class=1074)

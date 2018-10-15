@@ -1,5 +1,6 @@
 import argparse
 import sys
+import torch
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -70,19 +71,19 @@ def argparser():
     parser.add_argument(
         '--train_file',
         type=str,
-        default='/tmp/tensorflow/mnist/input_data',
+        default='/data/train.txt',
         help='Directory for input data.'
     )
     parser.add_argument(
         '--test_file',
         type=str,
-        default='/tmp/tensorflow/mnist/input_data',
+        default='/data/test.txt',
         help='Directory for input data.'
     )
     parser.add_argument(
         '--checkpoint_path',
         type=str,
-        default='',
+        default=None,
         help='Path to write checkpoint file.'
     )
     parser.add_argument(
@@ -135,6 +136,20 @@ def argparser():
     assert (len(FLAGS.filter_sizes) == len(FLAGS.num_filters))
 
     return FLAGS
+
+def save_checkpoint(checkpoint_path, model, optimizer):
+    state = {'state_dict': model.state_dict(),
+             'optimizer': optimizer.state_dict()}
+    torch.save(state, checkpoint_path)
+    print('model saved to %s' % checkpoint_path)
+
+
+def load_checkpoint(checkpoint_path, model, optimizer = None):
+    state = torch.load(checkpoint_path)
+    model.load_state_dict(state['state_dict'])
+    if optimizer:
+        optimizer.load_state_dict(state['optimizer'])
+    print('model loaded from %s' % checkpoint_path)
 
 GPCR_label = {'Adenosine': 0, 'Adrenergic': 1, 'Adrenocorticotropic': 2, 'Adrenomedullin': 3, 'Adrenoreceptor': 4,
               'Allatostatin': 5, 'AlphaFac': 6, 'Anaphylatoxin': 7, 'Angiotensin': 8, 'BLT2': 9, 'BOSS': 10,
