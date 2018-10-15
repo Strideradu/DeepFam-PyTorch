@@ -7,7 +7,7 @@ from torch.autograd import Variable
 class PepCNN(nn.Module):
 
     def __init__(self, num_class=1000, num_token=21, seq_len=1000, kernel_nums=[256, 256, 256, 256, 256, 256, 256, 256],
-                 kernel_sizes=[8, 12, 16, 20, 24, 28, 32, 36], dropout=0.3):
+                 kernel_sizes=[8, 12, 16, 20, 24, 28, 32, 36], dropout=0.5, num_fc=512):
         super(PepCNN, self).__init__()
 
         self.num_token = num_token
@@ -18,10 +18,10 @@ class PepCNN(nn.Module):
         self.kernel_sizes = kernel_sizes
         self.dropout_rate = dropout
 
-        self.embed = nn.Embedding(self.num_token, self.seq_len)
+        # self.embed = nn.Embedding(self.num_token, self.seq_len)
         # self.convs1 = [nn.Conv2d(Ci, self.kernel_num, (kernel_size, D)) for kernel_size in self.kernel_size]
         self.convs1 = nn.ModuleList(
-            [nn.Conv2d(self.channle_in, self.kernel_nums[i], (kernel_size, self.seq_len)) for i, kernel_size in
+            [nn.Conv2d(self.channle_in, self.kernel_nums[i], (kernel_size, self.num_token)) for i, kernel_size in
              enumerate(self.kernel_sizes)])
         '''
         self.conv13 = nn.Conv2d(Ci, self.kernel_num, (3, D))
@@ -29,13 +29,14 @@ class PepCNN(nn.Module):
         self.conv15 = nn.Conv2d(Ci, self.kernel_num, (5, D))
         '''
         self.dropout = nn.Dropout(self.dropout_rate)
-        self.fc1 = nn.Linear(len(self.kernel_sizes) * self.kernel_nums, self.num_class)
+        self.fc1 = nn.Linear(sum(self.kernel_nums), num_fc)
+        self.fc2 = nn.Linear(num_fc, self.num_class)
 
     def forward(self, x):
-        x = self.embed(x)  # (N, W, D)
+        # x = self.embed(x)  # (N, W, D)
 
-        if self.args.static:
-            x = Variable(x)
+        # if self.args.static:
+        #     x = Variable(x)
 
         x = x.unsqueeze(1)  # (N, Ci, W, D)
 
@@ -52,5 +53,6 @@ class PepCNN(nn.Module):
         x = torch.cat((x1, x2, x3), 1) # (N,len(Ks)*Co)
         '''
         x = self.dropout(x)  # (N, len(Ks)*Co)
-        logit = self.fc1(x)  # (N, C)
+        x = self.fc1(x)  # (N, C)
+        logit = self.fc2(x)
         return logit
