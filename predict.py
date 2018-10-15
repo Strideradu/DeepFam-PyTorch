@@ -5,6 +5,7 @@ from utils import *
 from models import PepCNN
 import tqdm
 
+
 def predict(args):
     model = PepCNN(num_class=args.num_classes)
     load_checkpoint(args.checkpoint_path, model)
@@ -23,10 +24,11 @@ def predict(args):
 
         corrects += (torch.max(logit, 1)
                      [1].view(target.size()).data == target.data).sum()
-        print(torch.topk(logit, 5))
+        print(torch.topk(logit, args.topk))
 
     size = len(data_loader.dataset)
     accuracy = 100 * corrects.data.cpu().numpy() / size
+
 
 if __name__ == '__main__':
     args = argparser()

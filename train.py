@@ -65,9 +65,6 @@ def eval(data_loader, model):
     return accuracy, losses, corrects, size
 
 
-
-
-
 if __name__ == '__main__':
     train_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/COG-500-1074/dataset0/train.txt")
     test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/COG-500-1074/dataset0/test.txt")

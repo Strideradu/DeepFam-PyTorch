@@ -2,19 +2,20 @@ import argparse
 import sys
 import torch
 
+
 def argparser():
     parser = argparse.ArgumentParser()
     # for model
     parser.add_argument(
         '--filter_sizes',
-        default = [8, 12, 16, 20, 24, 28, 32, 36],
+        default=[8, 12, 16, 20, 24, 28, 32, 36],
         type=int,
         nargs='+',
         help='Space seperated list of motif filter lengths. (ex, --filter_sizes 4 8 12)'
     )
     parser.add_argument(
         '--num_filters',
-        default = [256, 256, 256, 256, 256, 256, 256, 256],
+        default=[256, 256, 256, 256, 256, 256, 256, 256],
         type=int,
         nargs='+',
         help='Space seperated list of the number of convolution filters corresponding to length list. (ex, --num_filters 100 200 100)'
@@ -124,6 +125,12 @@ def argparser():
         default=None,
         help='Path to save prediction'
     )
+    parser.add_argument(
+        '--topk',
+        type=int,
+        default=1,
+        help='Top k prediction for predict'
+    )
 
     try:
         FLAGS, unparsed = parser.parse_known_args()
@@ -137,6 +144,7 @@ def argparser():
 
     return FLAGS
 
+
 def save_checkpoint(checkpoint_path, model, optimizer):
     state = {'state_dict': model.state_dict(),
              'optimizer': optimizer.state_dict()}
@@ -144,12 +152,13 @@ def save_checkpoint(checkpoint_path, model, optimizer):
     print('model saved to %s' % checkpoint_path)
 
 
-def load_checkpoint(checkpoint_path, model, optimizer = None):
+def load_checkpoint(checkpoint_path, model, optimizer=None):
     state = torch.load(checkpoint_path)
     model.load_state_dict(state['state_dict'])
     if optimizer:
         optimizer.load_state_dict(state['optimizer'])
     print('model loaded from %s' % checkpoint_path)
+
 
 GPCR_label = {'Adenosine': 0, 'Adrenergic': 1, 'Adrenocorticotropic': 2, 'Adrenomedullin': 3, 'Adrenoreceptor': 4,
               'Allatostatin': 5, 'AlphaFac': 6, 'Anaphylatoxin': 7, 'Angiotensin': 8, 'BLT2': 9, 'BOSS': 10,
