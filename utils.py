@@ -66,7 +66,7 @@ def argparser():
     parser.add_argument(
         '--batch_size',
         type=int,
-        default=64,
+        default=32,
         help='Batch size. Must divide evenly into the dataset sizes.'
     )
     parser.add_argument(
@@ -130,6 +130,12 @@ def argparser():
         type=int,
         default=1,
         help='Top k prediction for predict'
+    )
+    parser.add_argument(
+        '--predict_file',
+        type=str,
+        default=None,
+        help='path for predict data.'
     )
 
     try:

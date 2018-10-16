@@ -3,7 +3,7 @@ import torch.autograd as autograd
 import torch.nn.functional as F
 from dataset import *
 from utils import *
-from models import PepCNN
+from models import *
 from sklearn.metrics import roc_auc_score
 import tqdm
 
@@ -66,15 +66,15 @@ def eval(data_loader, model):
 
 
 if __name__ == '__main__':
-    train_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/COG-500-1074/dataset0/train.txt")
-    test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/COG-500-1074/dataset0/test.txt")
+    train_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/train.txt")
+    test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
     # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/DNA_translate/PBsim_GIPR_min2000_mean6000_6frame_protein_test.txt")
 
     train_loader = data.DataLoader(train_data, batch_size=32, shuffle=True)
     test_loader = data.DataLoader(test_data, batch_size=32)
 
     args = argparser()
-    model = PepCNN(num_class=1074)
+    model = PepCNN()
     optimizer = torch.optim.Adam(params=model.parameters())
 
     train(train_loader, test_loader, model, optimizer, args)
