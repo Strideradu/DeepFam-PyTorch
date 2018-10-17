@@ -73,7 +73,7 @@ class PepCNN_v2(nn.Module):
 
         # self.embed = nn.Embedding(self.num_token, self.seq_len)
         # self.convs1 = [nn.Conv2d(Ci, self.kernel_num, (kernel_size, D)) for kernel_size in self.kernel_size]
-        self.dropout_2d = nn.Dropout2d()
+        self.dropout_2d = nn.Dropout2d(0.05)
         self.convs1 = nn.ModuleList(
             [nn.Conv2d(self.channle_in, self.kernel_nums[i], (kernel_size, self.num_token)) for i, kernel_size in
              enumerate(self.kernel_sizes)])

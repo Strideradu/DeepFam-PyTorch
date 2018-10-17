@@ -25,9 +25,9 @@ def train(train_loader, val_loader, model, optimizer, args):
             feature, target = feature.cuda(), target.cuda()
 
             optimizer.zero_grad()
-            logit = model(feature)
+            logit= model(feature)
 
-            # print('logit vector', logit.size())
+            # print('prob vector', prob.size())
             # print('target vector', target.size())
             loss = F.cross_entropy(logit, target)
             loss.backward()
@@ -43,6 +43,8 @@ def train(train_loader, val_loader, model, optimizer, args):
             best_acc = accuracy
             save_checkpoint(args.checkpoint_path, model, optimizer)
 
+    print("Best accuracy is {:.4f}".format(best_acc))
+
 
 def eval(data_loader, model):
     model.eval()
@@ -53,7 +55,7 @@ def eval(data_loader, model):
         # feature.data.t_(), target.data.sub_(1)  # batch first, index align
         feature, target = feature.cuda(), target.cuda()
 
-        logit = model(feature)
+        logit= model(feature)
         loss = F.cross_entropy(logit, target)
 
         losses.append(loss.item())
@@ -67,14 +69,14 @@ def eval(data_loader, model):
 
 if __name__ == '__main__':
     train_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/train.txt")
-    test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
-    # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/DNA_translate/PBsim_GIPR_min2000_mean6000_6frame_protein_test.txt")
+    # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
+    test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/DNA_translate/4family_cds_6frame_test.txt")
 
     train_loader = data.DataLoader(train_data, batch_size=32, shuffle=True)
     test_loader = data.DataLoader(test_data, batch_size=32)
 
     args = argparser()
-    model = PepCNN()
-    optimizer = torch.optim.Adam(params=model.parameters())
+    model = PepCNN_v2()
+    optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
 
     train(train_loader, test_loader, model, optimizer, args)

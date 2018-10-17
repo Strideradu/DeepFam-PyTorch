@@ -7,12 +7,12 @@ import tqdm
 
 
 def predict(args):
-    model = PepCNN_v2(num_class=args.num_classes)
+    model = PepCNN(num_class=args.num_classes)
     load_checkpoint(args.checkpoint_path, model)
     model.cuda()
     model.eval()
 
-    logits = []
+    probs = []
     topks = []
 
     predict_data = PepseqDataset(args.test_file)
@@ -25,12 +25,13 @@ def predict(args):
         feature, target = feature.cuda(), target.cuda()
 
         logit = model(feature)
+        prob = F.softmax(logit, 1)
 
-        corrects += (torch.max(logit, 1)
+        corrects += (torch.max(prob, 1)
                      [1].view(target.size()).data == target.data).sum()
-        logit_5, top5 = torch.topk(logit.data.cpu(), args.topk)
+        logit_5, top5 = torch.topk(prob.data.cpu(), args.topk)
         for i, l in enumerate(logit_5):
-            logits.append(l.numpy())
+            probs.append(l.numpy())
             topks.append(top5[i].numpy())
 
     size = len(data_loader.dataset)
@@ -38,9 +39,9 @@ def predict(args):
     print("acc: {:.4f}%({}/{})".format(accuracy, corrects, size))
     if args.predict_file:
         df = pd.read_csv(args.test_file, sep='\t', header=None)
-        df["logits"] = logits
+        df["probs"] = probs
         df["topk"] = topks
-        df.to_csv(args.predict_file, columns=[2, 0, "topk", "logits"])
+        df.to_csv(args.predict_file, columns=[2, 0, "topk", "probs"])
 
 
 if __name__ == '__main__':
