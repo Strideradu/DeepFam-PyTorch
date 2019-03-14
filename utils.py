@@ -34,7 +34,7 @@ def argparser():
     parser.add_argument(
         '--num_hidden',
         type=int,
-        default=512,
+        default=2000,
         help='Number of neurons in hidden layer.'
     )
     parser.add_argument(
@@ -46,7 +46,7 @@ def argparser():
     parser.add_argument(
         '--dropout',
         type=float,
-        default=0.5,
+        default=0.3,
         help='Rate for dropout.'
     )
     parser.add_argument(
@@ -65,19 +65,19 @@ def argparser():
     parser.add_argument(
         '--learning_rate',
         type=float,
-        default=0.01,
+        default=0.001,
         help='Initial learning rate.'
     )
     parser.add_argument(
         '--epochs',
         type=int,
-        default=50,
+        default=25,
         help='Number of epochs to train.'
     )
     parser.add_argument(
         '--batch_size',
         type=int,
-        default=32,
+        default=100,
         help='Batch size. Must divide evenly into the dataset sizes.'
     )
     parser.add_argument(
