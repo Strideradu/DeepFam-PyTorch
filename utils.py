@@ -5,6 +5,17 @@ import torch
 
 def argparser():
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        'train_file',
+        type=str,
+        help='path for train file.'
+    )
+    parser.add_argument(
+        'test_file',
+        type=str,
+        help='path for test file.'
+    )
     # for model
     parser.add_argument(
         '--filter_sizes',
@@ -68,18 +79,6 @@ def argparser():
         type=int,
         default=32,
         help='Batch size. Must divide evenly into the dataset sizes.'
-    )
-    parser.add_argument(
-        '--train_file',
-        type=str,
-        default='/data/train.txt',
-        help='Directory for input data.'
-    )
-    parser.add_argument(
-        '--test_file',
-        type=str,
-        default='/data/test.txt',
-        help='Directory for input data.'
     )
     parser.add_argument(
         '--checkpoint_path',

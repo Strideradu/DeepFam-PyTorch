@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from dataset import *
 from utils import *
 from models import *
+import os
 import tqdm
 
 
@@ -13,6 +14,7 @@ def predict(args):
     model.eval()
 
     probs = []
+    topps = []
     topks = []
 
     predict_data = PepseqDataset(args.test_file)
@@ -27,11 +29,13 @@ def predict(args):
         logit = model(feature)
         prob = F.softmax(logit, 1)
 
+        probs.append(prob.data.cpu().numpy())
+
         corrects += (torch.max(prob, 1)
                      [1].view(target.size()).data == target.data).sum()
         logit_5, top5 = torch.topk(prob.data.cpu(), args.topk)
         for i, l in enumerate(logit_5):
-            probs.append(l.numpy())
+            topps.append(l.numpy())
             topks.append(top5[i].numpy())
 
     size = len(data_loader.dataset)
@@ -39,11 +43,18 @@ def predict(args):
     print("acc: {:.4f}%({}/{})".format(accuracy, corrects, size))
     if args.predict_file:
         df = pd.read_csv(args.test_file, sep='\t', header=None)
-        df["probs"] = probs
+        df["topps"] = topps
         df["topk"] = topks
-        df.to_csv(args.predict_file, columns=[2, 0, "topk", "probs"])
+        df.to_csv(args.predict_file, columns=[2, 0, "topk", "topps"])
+
+    probs = np.concatenate(probs)
+    parent_dir = os.path.dirname(args.predict_file)
+    filename_base = os.path.splitext(os.path.basename(args.predict_file))[0]
+    prob_path = os.path.join(parent_dir, filename_base+'.npy')
+    np.save(prob_path, probs)
 
 
 if __name__ == '__main__':
     args = argparser()
+    assert args.predict is not None
     predict(args)

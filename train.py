@@ -68,15 +68,17 @@ def eval(data_loader, model):
 
 
 if __name__ == '__main__':
-    train_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/train.txt")
-    # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
-    test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/DNA_translate/4family_cds_6frame_test.txt")
+    args = argparser()
 
-    train_loader = data.DataLoader(train_data, batch_size=32, shuffle=True)
-    test_loader = data.DataLoader(test_data, batch_size=32)
+    train_data = PepseqDataset(file_path=args.train_file)
+    # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
+    test_data = PepseqDataset(file_path=args.test_file)
+
+    train_loader = data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
+    test_loader = data.DataLoader(test_data, batch_size=args.batch_size)
 
     args = argparser()
-    model = PepCNN_v2()
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=0.001)
+    model = PepCNN()
+    optimizer = torch.optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.regularizer)
 
     train(train_loader, test_loader, model, optimizer, args)
