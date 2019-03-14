@@ -1,6 +1,8 @@
 import torch
 import torch.autograd as autograd
 import torch.nn.functional as F
+from torch.nn.parallel.data_parallel import data_parallel
+
 from dataset import *
 from utils import *
 from models import *
@@ -25,7 +27,7 @@ def train(train_loader, val_loader, model, optimizer, args):
             feature, target = feature.cuda(), target.cuda()
 
             optimizer.zero_grad()
-            logit= model(feature)
+            logit = data_parallel(model, feature)
 
             # print('prob vector', prob.size())
             # print('target vector', target.size())

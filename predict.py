@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.nn.parallel.data_parallel import data_parallel
 from dataset import *
 from utils import *
 from models import *
@@ -26,7 +27,7 @@ def predict(args):
         # feature.data.t_(), target.data.sub_(1)  # batch first, index align
         feature, target = feature.cuda(), target.cuda()
 
-        logit = model(feature)
+        logit = data_parallel(model, feature)
         prob = F.softmax(logit, 1)
 
         probs.append(prob.data.cpu().numpy())
