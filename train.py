@@ -76,8 +76,8 @@ if __name__ == '__main__':
     # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
     test_data = PepseqDataset(file_path=args.test_file)
 
-    train_loader = data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-    test_loader = data.DataLoader(test_data, batch_size=args.batch_size)
+    train_loader = data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    test_loader = data.DataLoader(test_data, batch_size=args.batch_size, num_workers=4)
 
     args = argparser()
     model = PepCNN()
