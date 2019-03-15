@@ -57,5 +57,5 @@ def predict(args):
 
 if __name__ == '__main__':
     args = argparser()
-    assert args.predict is not None
+    assert args.predict_file is not None
     predict(args)
