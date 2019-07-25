@@ -164,6 +164,21 @@ def load_checkpoint(checkpoint_path, model, optimizer=None):
         optimizer.load_state_dict(state['optimizer'])
     print('model loaded from %s' % checkpoint_path)
 
+def metric(logit, truth):
+    with torch.no_grad():
+        prob = F.softmax(logit, 1)
+        value, top = prob.topk(3, dim=1, largest=True, sorted=True)
+        correct = top.eq(truth.view(-1, 1).expand_as(top))
+    return correct
+
+
+def get_lrs(optimizer):
+    lrs = []
+    for pgs in optimizer.state_dict()['param_groups']:
+        lrs.append(pgs['lr'])
+    lrs = ['{:.6f}'.format(x) for x in lrs]
+    return lrs
+
 
 GPCR_label = {'Adenosine': 0, 'Adrenergic': 1, 'Adrenocorticotropic': 2, 'Adrenomedullin': 3, 'Adrenoreceptor': 4,
               'Allatostatin': 5, 'AlphaFac': 6, 'Anaphylatoxin': 7, 'Angiotensin': 8, 'BLT2': 9, 'BOSS': 10,

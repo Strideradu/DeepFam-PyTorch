@@ -21,7 +21,7 @@ class PepCNN(nn.Module):
         # self.embed = nn.Embedding(self.num_token, self.seq_len)
         # self.convs1 = [nn.Conv2d(Ci, self.kernel_num, (kernel_size, D)) for kernel_size in self.kernel_size]
         self.convs1 = nn.ModuleList(
-            [nn.Conv2d(self.channle_in, self.kernel_nums[i], (kernel_size, self.num_token)) for i, kernel_size in
+            [ConvBNRelu2d(self.channle_in, self.kernel_nums[i], kernel_size= (kernel_size, self.num_token)) for i, kernel_size in
              enumerate(self.kernel_sizes)])
         '''
         self.conv13 = nn.Conv2d(Ci, self.kernel_num, (3, D))
@@ -40,7 +40,7 @@ class PepCNN(nn.Module):
 
         x = x.unsqueeze(1)  # (N, Ci, W, D)
 
-        x = [F.relu(conv(x)).squeeze(3) for conv in self.convs1]  # [(N, Co, W), ...]*len(Ks)
+        x = [conv(x).squeeze(3) for conv in self.convs1]  # [(N, Co, W), ...]*len(Ks)
 
         x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]  # [(N, Co), ...]*len(Ks)
 
@@ -56,6 +56,18 @@ class PepCNN(nn.Module):
         x = self.fc1(x)  # (N, C)
         logit = self.fc2(x)
         return logit
+
+class ConvBNRelu2d(nn.Module):
+
+    def __init__(self, in_channels, out_channels, **kwargs):
+        super(ConvBNRelu2d, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
+        self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.bn(x)
+        return F.relu(x, inplace=True)
 
 class PepCNN_v2(nn.Module):
 

@@ -11,19 +11,20 @@ CHARSET = {'A': 0, 'C': 1, 'D': 2, 'E': 3, 'F': 4, 'G': 5, 'H': 6, \
            'J': (7, 9)}
 CHARLEN = 21
 
-def encoding_seq_np(seq, arr):
+def encoding_seq_np(seq, arr, seq_len):
     for i, c in enumerate(seq):
-        if c == "_" or c == "*":
-            # let them zero
-            continue
-        elif isinstance(CHARSET[c], int):
-            idx = CHARSET[c]
-            arr[i][idx] = 1
-        else:
-            idx1 = CHARSET[c][0]
-            idx2 = CHARSET[c][1]
-            arr[i][idx1] = 0.5
-            arr[i][idx2] = 0.5
+        if i < seq_len:
+            if c == "_" or c == "*":
+                # let them zero
+                continue
+            elif isinstance(CHARSET[c], int):
+                idx = CHARSET[c]
+                arr[i][idx] = 1
+            else:
+                idx1 = CHARSET[c][0]
+                idx2 = CHARSET[c][1]
+                arr[i][idx1] = 0.5
+                arr[i][idx2] = 0.5
 
 class PepseqDataset(data.Dataset):
     def __init__(self, file_path, type='train', seq_len = 1000):
@@ -40,5 +41,5 @@ class PepseqDataset(data.Dataset):
 
     def __getitem__(self, index):
         seq_np = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
-        encoding_seq_np(self.seqs[index], seq_np)
+        encoding_seq_np(self.seqs[index], seq_np, self.seq_len)
         return seq_np, self.labels[index]
