@@ -134,11 +134,25 @@ if __name__ == '__main__':
 
         dfs.append(df)
 
+    if args.test_file is not None:
+        parent_path = os.path.dirname(args.test_file)
+        file_name = os.path.basename(args.test_file)
+        cv_idx = file_name.find('cv')
+        df_vals = []
+        for i in range(args.kfold):
+            df_path = os.path.join(parent_path, file_name[:cv_idx] + "cv{}.txt".format(i))
+            df = pd.read_csv(df_path, sep='\t', header=None)
+
+            df_vals.append(df)
+
     for i in range(args.kfold):
         df_train = [df for idx, df in enumerate(dfs) if idx != i]
 
         df_train = pd.concat(df_train, ignore_index=True)
-        df_val = dfs[i]
+        if args.test_file is not None:
+            df_val = df_vals[i]
+        else:
+            df_val = dfs[i]
 
         train_data = PepseqDatasetFromDF(df_train)
         test_data = PepseqDatasetFromDF(df_val)
