@@ -6,6 +6,7 @@ from torch.nn.parallel.data_parallel import data_parallel
 from dataset import *
 from utils import *
 from models import *
+import os
 import tqdm
 
 criterion = nn.CrossEntropyLoss().cuda()
@@ -117,25 +118,13 @@ def validate(data_loader, model):
 
 if __name__ == '__main__':
     args = argparser()
-    args.vocab_size = 21
     print(args)
-
-    EMBED_MODEL = ['PepCNNDeepEmbed']
-    POS_MODEL = ['Transformer']
-    if args.model in EMBED_MODEL:
-        args.use_embed = True
-    else:
-        args.use_embed = False
-    if args.model in POS_MODEL:
-        args.position = True
-    else:
-        args.position = False
 
     assert os.path.isfile(args.train_file)
     assert os.path.isdir(args.checkpoint_path)
 
-    parent_path = os.path.dirname(args.data)
-    file_name = os.path.basename(args.data)
+    parent_path = os.path.dirname(args.train_file)
+    file_name = os.path.basename(args.train_file)
     cv_idx = file_name.find('cv')
     dfs = []
     for i in range(args.kfold):

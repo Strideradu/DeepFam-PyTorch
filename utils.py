@@ -137,6 +137,10 @@ def argparser():
         help='path for predict data.'
     )
 
+    parser.add_argument(
+        '--kfold', default=5, type=int, help='kfold'
+    )
+
     try:
         FLAGS, unparsed = parser.parse_known_args()
 
