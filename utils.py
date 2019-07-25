@@ -1,6 +1,7 @@
 import argparse
 import sys
 import torch
+import torch.nn.functional as F
 
 
 def argparser():
@@ -158,7 +159,7 @@ def save_checkpoint(checkpoint_path, model, optimizer):
     state = {'state_dict': model.state_dict(),
              'optimizer': optimizer.state_dict()}
     torch.save(state, checkpoint_path)
-    print('model saved to %s' % checkpoint_path)
+    # print('model saved to %s' % checkpoint_path)
 
 
 def load_checkpoint(checkpoint_path, model, optimizer=None):

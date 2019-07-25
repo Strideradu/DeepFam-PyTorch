@@ -8,6 +8,8 @@ from utils import *
 from models import *
 import os
 import tqdm
+from apex import amp
+import time
 
 criterion = nn.CrossEntropyLoss().cuda()
 
@@ -21,11 +23,10 @@ def train(train_loader, val_loader, model, optimizer, args, model_path):
 
     model, optimizer = amp.initialize(model, optimizer, opt_level="O1", verbosity=0)
 
-    train_info = {'epoch': [], 'train_loss': [], 'val_loss': [], 'metric': [], 'best': [], 'test_loss': [],
-                  'test_acc': []}
+    train_info = {'epoch': [], 'train_loss': [], 'val_loss': [], 'metric': [], 'best': []}
 
     print(
-        'epoch |   lr    |    %        |  loss  |  avg   |val loss| top1  |  top3   |  best  |test loss| top1  | time | save |')
+        'epoch |   lr    |    %        |  loss  |  avg   |val loss| top1  |  top3   |  best  | time | save |')
     bg = time.time()
     train_iter = 0
     model.train()
@@ -56,7 +57,7 @@ def train(train_loader, val_loader, model, optimizer, args, model_path):
                 epoch, float(current_lr[0]), args.batch_size * (batch_idx + 1), train_loader.num, loss.item(),
                                              train_loss / (train_iter - last_val_iter)), end='')
 
-            if train_iter > 0 and train_iter % args.iter_val == 0:
+            if train_iter > 0 and train_iter % args.log_interval == 0:
 
                 top_1, top_3, val_loss, size = validate(val_loader, model)
                 # test_top_1, tst_top_3, test_loss, _ = validate(test_loader, model)
@@ -130,26 +131,24 @@ if __name__ == '__main__':
     for i in range(args.kfold):
         df_path = os.path.join(parent_path, file_name[:cv_idx] + "cv{}.txt".format(i))
         df = pd.read_csv(df_path, sep='\t', header=None)
+
         dfs.append(df)
 
     for i in range(args.kfold):
         df_train = [df for idx, df in enumerate(dfs) if idx != i]
-        df_train = pd.concat(df_train)
-        df_val = dfs[i]
-        val_size = len(df_val)
-        # df_val = df_val[:int(0.1 * val_size)]
 
-        df_test = pd.read_csv(args.test_file, sep='\t', header=None)
+        df_train = pd.concat(df_train, ignore_index=True)
+        df_val = dfs[i]
 
         train_data = PepseqDatasetFromDF(df_train)
-        # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
         test_data = PepseqDatasetFromDF(df_val)
 
         train_loader = data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=4)
+        train_loader.num = len(train_data)
         test_loader = data.DataLoader(test_data, batch_size=args.batch_size, num_workers=4)
 
         model = PepCNN()
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr, weight_decay=args.l2)
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.regularizer)
 
         model_path = os.path.join(args.checkpoint_path, 'model_cv{}.pth'.format(i))
 
