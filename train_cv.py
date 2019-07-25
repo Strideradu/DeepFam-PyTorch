@@ -131,7 +131,7 @@ if __name__ == '__main__':
     else:
         args.position = False
 
-    assert os.path.isfile(args.data)
+    assert os.path.isfile(args.train_file)
     assert os.path.isdir(args.checkpoint_path)
 
     parent_path = os.path.dirname(args.data)

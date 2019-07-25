@@ -7,12 +7,12 @@ def argparser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        'train_file',
+        '--train_file',
         type=str,
         help='path for train file.'
     )
     parser.add_argument(
-        'test_file',
+        '--test_file',
         type=str,
         help='path for test file.'
     )
