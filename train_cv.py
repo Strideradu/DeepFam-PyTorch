@@ -141,9 +141,9 @@ if __name__ == '__main__':
 
         df_test = pd.read_csv(args.test_file, sep='\t', header=None)
 
-        train_data = PepseqDataset(file_path=args.train_file)
+        train_data = PepseqDatasetFromDF(df_train)
         # test_data = PepseqDataset(file_path="/home/dunan/Documents/DeepFam_data/GPCR/cv_1/test.txt")
-        test_data = PepseqDataset(file_path=args.test_file)
+        test_data = PepseqDatasetFromDF(df_val)
 
         train_loader = data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=4)
         test_loader = data.DataLoader(test_data, batch_size=args.batch_size, num_workers=4)

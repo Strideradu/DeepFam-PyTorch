@@ -43,3 +43,18 @@ class PepseqDataset(data.Dataset):
         seq_np = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
         encoding_seq_np(self.seqs[index], seq_np, self.seq_len)
         return seq_np, self.labels[index]
+
+class PepseqDatasetFromDF(data.Dataset):
+    def __init__(self, df, type='train', seq_len = 1000):
+        self.type = type
+        self.seq_len = 1000
+        self.labels = df[0]
+        self.seqs = df[1]
+
+    def __len__(self):
+        return len(self.seqs)
+
+    def __getitem__(self, index):
+        seq_np = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
+        encoding_seq_np(self.seqs[index], seq_np, self.seq_len)
+        return seq_np, self.labels[index]
