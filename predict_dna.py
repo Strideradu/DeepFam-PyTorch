@@ -28,7 +28,7 @@ def predict(args):
     model, _ = amp.initialize(model, optimizer, opt_level="O1", verbosity=0)
     model.eval()
 
-    predict_data = PepseqDataset(args.test_file)
+    predict_data = PepseqDatasetFromDNA(args.test_file)
     data_loader = data.DataLoader(predict_data, batch_size=args.batch_size)
 
     corrects = 0

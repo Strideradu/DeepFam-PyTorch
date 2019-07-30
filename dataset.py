@@ -1,6 +1,7 @@
 from torch.utils import data
 import pandas as pd
 import numpy as np
+from Bio.Seq import translate
 
 CHARSET = {'A': 0, 'C': 1, 'D': 2, 'E': 3, 'F': 4, 'G': 5, 'H': 6, \
            'I': 7, 'K': 8, 'L': 9, 'M': 10, 'N': 11, 'P': 12, 'Q': 13, \
@@ -63,6 +64,7 @@ class PepseqDatasetFromDNA(data.Dataset):
     def __init__(self, file_path, type='train', seq_len = 1000):
         self.type = type
         self.seq_len = 1000
+        self.file = file_path
         df = pd.read_csv(self.file, sep='\t', header=None)
         self.labels = df[0]
         self.seqs = df[1]
@@ -74,7 +76,10 @@ class PepseqDatasetFromDNA(data.Dataset):
         seq_np1 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
         seq_np2 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
         seq_np3 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
-        encoding_seq_np(self.seqs[index], seq_np1, self.seq_len)
-        encoding_seq_np(self.seqs[index][1:], seq_np1, self.seq_len)
-        encoding_seq_np(self.seqs[index][2:], seq_np1, self.seq_len)
+        pep1 = translate(self.seqs[index])
+        pep2 = translate(self.seqs[index][1:])
+        pep3 = translate(self.seqs[index][2:])
+        encoding_seq_np(pep1, seq_np1, self.seq_len)
+        encoding_seq_np(pep2, seq_np1, self.seq_len)
+        encoding_seq_np(pep3, seq_np1, self.seq_len)
         return seq_np1, seq_np2, seq_np3, self.labels[index]
