@@ -58,3 +58,23 @@ class PepseqDatasetFromDF(data.Dataset):
         seq_np = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
         encoding_seq_np(self.seqs[index], seq_np, self.seq_len)
         return seq_np, self.labels[index]
+
+class PepseqDatasetFromDNA(data.Dataset):
+    def __init__(self, file_path, type='train', seq_len = 1000):
+        self.type = type
+        self.seq_len = 1000
+        df = pd.read_csv(self.file, sep='\t', header=None)
+        self.labels = df[0]
+        self.seqs = df[1]
+
+    def __len__(self):
+        return len(self.seqs)
+
+    def __getitem__(self, index):
+        seq_np1 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
+        seq_np2 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
+        seq_np3 = np.zeros((self.seq_len, CHARLEN), dtype=np.float32)
+        encoding_seq_np(self.seqs[index], seq_np1, self.seq_len)
+        encoding_seq_np(self.seqs[index][1:], seq_np1, self.seq_len)
+        encoding_seq_np(self.seqs[index][2:], seq_np1, self.seq_len)
+        return seq_np1, seq_np2, seq_np3, self.labels[index]
