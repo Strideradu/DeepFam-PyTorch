@@ -151,6 +151,8 @@ if __name__ == '__main__':
         df_train = pd.concat(df_train, ignore_index=True)
         if args.test_file is not None:
             df_val = df_vals[i]
+            val_size = len(df_val)
+            df_val = df_val[:int(0.1 * val_size)]
         else:
             df_val = dfs[i]
 
